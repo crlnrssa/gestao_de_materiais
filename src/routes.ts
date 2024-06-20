@@ -7,8 +7,12 @@ const routes = Router()
 
 routes.post('/registro', new UsersController().create)
 routes.post('/login', new UsersController().login)
-routes.post('/materiais', new MaterialsController().create)
+routes.post('/materiais', authMiddleware, new MaterialsController().create)
 
-routes.get('/profile', authMiddleware, new UsersController().getProfile)
+routes.put('/materiais/:id', authMiddleware, new MaterialsController().update)
+
+routes.get('/users/:id', authMiddleware, new UsersController().getUserById)
+
+routes.delete('/materiais/:id', authMiddleware, new MaterialsController().delete)
 
 export default routes

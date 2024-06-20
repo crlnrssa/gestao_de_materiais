@@ -51,7 +51,23 @@ export class UsersController {
         })
     }
 
-    async getProfile(req: Request, res: Response) {
-        return res.json(req.user)
+    async getUserById(req: Request, res: Response) {
+        const { id } = req.params;
+
+        if (isNaN(Number(id))) {
+            throw new BadRequestError('ID inválido');
+        }
+
+        const user = await usersRepository.findOneBy({ id: Number(id) });
+
+        if (!user) {
+            throw new BadRequestError('Usuário não encontrado');
+        }
+
+        const { senha: _, ...userInfo } = user;
+
+        return res.json(userInfo);
     }
+
+
 }

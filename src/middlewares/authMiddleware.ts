@@ -6,6 +6,7 @@ import { usersRepository } from "../repositories/usersRepository";
 type JwtPayload = {
     id: number
 }
+
 export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     const { authorization } = req.headers
 
