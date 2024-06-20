@@ -1,24 +1,57 @@
 import { Request, Response } from "express";
 import { usersRepository } from "../repositories/usersRepository";
+import { BadRequestError} from "../helpers/api-errors";
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
 
 export class UsersController {
     async create(req: Request, res: Response){
         //criar usuário
         const { nome, email, senha } = req.body
 
-        if (!nome) {
-            return res.status(400).json({mensagem: 'O nome é obrigatório' })
+        const userExists = await usersRepository.findOneBy({email})
+
+        if (userExists) {
+            throw new BadRequestError('Email já existe')
         }
 
-        try {
-            const newUsers = usersRepository.create({nome, email, senha})
+        const hashSenha = await bcrypt.hash(senha, 10)
 
-            await usersRepository.save(newUsers)
+        const newUsers = usersRepository.create({nome, email, senha: hashSenha})
 
-            return res.status(201).json(newUsers)
-        } catch (error) {
-            console.log(error);
-            return res.status(500).json({mensagem: 'Internal Server Error' })
+        await usersRepository.save(newUsers)
+
+        const { senha: _, ...user} = newUsers
+
+        return res.status(201).json(user)
+    }
+
+    async login(req: Request, res: Response){
+        const { email, senha } = req.body
+
+        const user = await usersRepository.findOneBy({email})
+
+        if (!user) {
+            throw new BadRequestError('Email ou senha inválidos')
         }
+
+        const verifySenha= await bcrypt.compare(senha, user.senha)
+
+        if (!verifySenha) {
+            throw new BadRequestError('Email ou senha inválidos')
+        }
+
+        const token = jwt.sign({ id: user.id}, process.env.JWT_PASS ?? '', { expiresIn: '8h'})
+
+        const { senha: _, ...userLogin} = user
+
+        return res.json({
+            user: userLogin,
+            token: token
+        })
+    }
+
+    async getProfile(req: Request, res: Response) {
+        return res.json(req.user)
     }
 }

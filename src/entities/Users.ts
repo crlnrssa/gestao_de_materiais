@@ -8,7 +8,7 @@ export class Users {
     @Column({ type: 'varchar' })
     nome: string
 
-    @Column({ type: 'varchar' })
+    @Column({ type: 'varchar', unique: true })
     email: string
 
     @Column({ type: 'varchar'})
