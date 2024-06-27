@@ -1,8 +1,8 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity('materials')
+@Entity('materials') //define entidade e referencia com o banco de dados
 export class Materials {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn()  //define as colunas e tipos para a criação do banco de dados
     id: number
 
     @Column({ type: 'varchar' })

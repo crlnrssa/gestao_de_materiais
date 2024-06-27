@@ -8,20 +8,20 @@ type JwtPayload = {
 }
 
 export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
-    const { authorization } = req.headers
+    const { authorization } = req.headers //define que precisará de autenticação
 
         if (!authorization) {
-            throw new UnauthorizedError('Não autorizado')
+            throw new UnauthorizedError('Não autorizado') //se n tiver autenticação retorna um erro
         }
         
-        const token = authorization.split(' ')[1]
+        const token = authorization.split(' ')[1] //extrai o token do cabeçalho
         
-        const { id } = jwt.verify( token, process.env.JWT_PASS ?? '') as JwtPayload
+        const { id } = jwt.verify( token, process.env.JWT_PASS ?? '') as JwtPayload //verifica o token e extrai o id
 
-        const user = await usersRepository.findOneBy({ id })
+        const user = await usersRepository.findOneBy({ id }) //com o id extraído, ele procura o user dentro do banco de dados
 
         if (!user) {
-            throw new BadRequestError('Email ou senha inválidos')
+            throw new BadRequestError('Email ou senha inválidos') //se o user n for encontrado lança um erro
         }
 
         const { senha: _, ...loggedUser} = user
